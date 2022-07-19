@@ -160,6 +160,55 @@ static void date_format_dropdown_event_handler(lv_obj_t * obj, lv_event_t event)
 }
 
 
+static void set_datetime_done_button_handler(lv_obj_t * obj, lv_event_t event)
+{
+    	if(event == LV_EVENT_CLICKED) {
+		lv_obj_t* p = lv_obj_get_parent(obj);
+		lv_obj_del(p);
+	}
+}
+
+static void set_date_calendar_event_handler(lv_obj_t * obj, lv_event_t event)
+{
+    	if(event == LV_EVENT_VALUE_CHANGED) 
+	{
+		lv_calendar_date_t * date = lv_calendar_get_pressed_date(obj);
+        	if(date) 
+		{
+            		printf("Clicked date: %02d.%02d.%d\n", date->day, date->month, date->year);
+        	}
+	}
+}
+
+static void create_set_datetime_window(lv_obj_t * parent)
+{
+	lv_obj_t* set_container = lv_cont_create(parent,NULL);
+	lv_obj_set_size(set_container,250,220);
+	lv_obj_align(set_container,NULL,LV_ALIGN_CENTER,0,0);
+
+	lv_obj_t  * calendar = lv_calendar_create(set_container, NULL);
+    	lv_obj_set_size(calendar, 230, 150);
+    	lv_obj_align(calendar, NULL, LV_ALIGN_CENTER, 0, -25);
+    	lv_obj_set_event_cb(calendar, set_date_calendar_event_handler);
+
+	lv_obj_t* btn1 = lv_btn_create(set_container, NULL);
+    	lv_obj_set_event_cb(btn1, set_datetime_done_button_handler);
+    	lv_obj_align(btn1, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, 0);
+
+    	lv_obj_t* label = lv_label_create(btn1, NULL);
+    	lv_label_set_text(label, "Clear");
+
+}
+
+
+static void set_datetime_button_handler(lv_obj_t * obj, lv_event_t event)
+{
+    	if(event == LV_EVENT_CLICKED) 
+	{
+		create_set_datetime_window(lv_obj_get_parent(obj));	
+    	}
+}
+
 
 void create_clock(lv_obj_t* parent)
 {
@@ -197,6 +246,14 @@ void create_clock(lv_obj_t* parent)
 	lv_task_create(datelabel_text_anim, 1000, LV_TASK_PRIO_LOW, datelabel);
 	snprintf ( strfdate_buf, sizeof(strfdate_buf), "..........." );
 	lv_label_set_text(datelabel,strfdate_buf);
+
+	// create set date/time button and its label
+    	lv_obj_t* btn1 = lv_btn_create(parent, NULL);
+    	lv_obj_set_event_cb(btn1, set_datetime_button_handler);
+    	lv_obj_align(btn1, NULL, LV_ALIGN_IN_TOP_MID, -80, 80);
+
+    	lv_obj_t* label = lv_label_create(btn1, NULL);
+    	lv_label_set_text(label, "Set Datetime");
 
 	
 	// create a label for the date format drop down
@@ -241,7 +298,6 @@ void create_clock(lv_obj_t* parent)
     	lv_obj_align(time_format_list, time_format_list_text, LV_ALIGN_OUT_BOTTOM_MID, 0, 6);
     	lv_obj_set_event_cb(time_format_list, time_format_dropdown_event_handler);
 
-
 }
 
 
@@ -277,10 +333,13 @@ static void create_demo_application(void)
         	vTaskDelay(pdMS_TO_TICKS(10));
 
         	/* Try to take the semaphore, call lvgl related function on success */
+
+
         	if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) {
             		lv_task_handler();
             		xSemaphoreGive(xGuiSemaphore);
        		}
+
     	}
 
 }
