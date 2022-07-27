@@ -4,4 +4,5 @@ Project created using the documentation and guidelines of [esp-idf](https://gith
 
 # Project setup image, LCD with ESP32 board
 
-![alt text](https://github.com/ishansheth/ESP32_LCD/blob/master/images/PXL_20220716_171200853.MP.jpg)
+<img src="https://github.com/ishansheth/ESP32_LCD/blob/master/images/PXL_20220716_171200853.MP.jpg" alt="drawing" width="200" height="200"/>
+
