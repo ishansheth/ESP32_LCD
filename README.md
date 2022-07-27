@@ -17,15 +17,15 @@ The following values are set in sdkconfig file using menuconfig in esp-idf (_idf
 
 ## Touchpanel (XPT2046) Pin Assignments to ESP32 GPIO number
 
-CONFIG_LV_TOUCH_SPI_MISO=12
+    CONFIG_LV_TOUCH_SPI_MISO=12
 
-CONFIG_LV_TOUCH_SPI_MOSI=14
+    CONFIG_LV_TOUCH_SPI_MOSI=14
 
-CONFIG_LV_TOUCH_SPI_CLK=26
+    CONFIG_LV_TOUCH_SPI_CLK=26
 
-CONFIG_LV_TOUCH_SPI_CS=27
+    CONFIG_LV_TOUCH_SPI_CS=27
 
-CONFIG_LV_TOUCH_PIN_IRQ=13
+    CONFIG_LV_TOUCH_PIN_IRQ=13
 
 ## Touchpanel Configuration (XPT2046)
 
