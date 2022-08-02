@@ -1,7 +1,6 @@
 # ESP32_LCD
 
 ESP32 project to display a GUI on ILI9341 320x240 LCD with touch. GUI consist of the clock and stopwatch. 
-Example project can be found [here](https://github.com/lvgl/lv_port_esp32)
 
 # Used packages
 - [LVGL](https://github.com/lvgl/lvgl)
@@ -26,64 +25,63 @@ In order to use LVGL and LVGL driver to display GUI with widgets, specific versi
     
         idf.py -p <PORT> flash monitor
         
-    To only monitor
+    To only monitor the process via serial port
     
         idf.py monitor
         
         
 
-# Project setup image, Configuration
+# Project Configuration 
 
-The following values are set in sdkconfig file using menuconfig in esp-idf (_idf.py menuconfig_)
+The GPIO pins of the ESP32 are connected to the IO pins of the ILI9341 LCD as shown in the image below. These pin values can be set 
+set in sdkconfig file using menuconfig in esp-idf (_idf.py menuconfig_). It can certainly vary depending on the used GPIO pin for particular LCD IO pin and can be set using menuconfig. The below GPIO pin numbers are shown only for the project setup shown in the image below.
 
-## Touchpanel (XPT2046) Pin Assignments to ESP32 GPIO number
+## LCD Pin Assignments to ESP32 GPIO number
 
-    CONFIG_LV_TOUCH_SPI_MISO=12
+| Menuconfig Variable Name | GPIO PIN number |
+|--------------------------|-----------------|
+| CONFIG_LV_TOUCH_SPI_MISO |       12        |
+| CONFIG_LV_TOUCH_SPI_MOSI |       14        |
+| CONFIG_LV_TOUCH_SPI_CLK  |       26        |
+| CONFIG_LV_TOUCH_SPI_CS   |       27        |
+| CONFIG_LV_TOUCH_PIN_IRQ  |       13        |
 
-    CONFIG_LV_TOUCH_SPI_MOSI=14
-
-    CONFIG_LV_TOUCH_SPI_CLK=26
-
-    CONFIG_LV_TOUCH_SPI_CS=27
-
-    CONFIG_LV_TOUCH_PIN_IRQ=13
-
-## Touchpanel Configuration (XPT2046)
+## Touchpanel Configuration for ILI93411 320x240
 
 The values of X min/max and Y min/max indicate the raw values from XPT2046 controller when a respective corner of the LCD screen is touched. 
 The below values determined when the LCD is used in _landscape_ mode. Depending on the mode (landscape or portrait), the values in italic fonts should be changed/swapped.
 
-    CONFIG_LV_HOR_RES_MAX=320
+| Menuconfig Variable Name | values |
+|--------------------------|--------|
+|  CONFIG_LV_HOR_RES_MAX   |  320   |
+|  CONFIG_LV_VER_RES_MAX   |  240   |
+|  CONFIG_LV_TOUCH_X_MIN   |  183   | 
+|  CONFIG_LV_TOUCH_Y_MIN   |  134   |
+|  CONFIG_LV_TOUCH_X_MAX   |  1959  |
+|  CONFIG_LV_TOUCH_Y_MAX   |  1843  |
 
-    CONFIG_LV_VER_RES_MAX=240
+The below values should be constant as X/Y values require inversion (y means marked in menuconfig GUI)
 
-    CONFIG_LV_TOUCH_X_MIN=183
-
-    CONFIG_LV_TOUCH_Y_MIN=134
-
-    CONFIG_LV_TOUCH_X_MAX=1959
-
-    CONFIG_LV_TOUCH_Y_MAX=1843
-
-The below values should be constant as X/Y values require inversion
-
-    CONFIG_LV_TOUCH_INVERT_X=y
-
-    CONFIG_LV_TOUCH_INVERT_Y=y
-
-    CONFIG_LV_TOUCH_DETECT_IRQ=y
+| Menuconfig Variable Name   | values |
+|----------------------------|--------|
+| CONFIG_LV_TOUCH_INVERT_X   |   y    |
+| CONFIG_LV_TOUCH_INVERT_Y   |   y    |
+| CONFIG_LV_TOUCH_DETECT_IRQ |   y    |
 
 The below values are assigned depending on the GPIO pin assignment
 
-    CONFIG_LV_TOUCH_SPI_MISO=12
-
-    CONFIG_LV_TOUCH_SPI_MOSI=14
-
-    CONFIG_LV_TOUCH_SPI_CLK=26
-
-    CONFIG_LV_TOUCH_SPI_CS=27
-
-    CONFIG_LV_TOUCH_PIN_IRQ=13
+| Menuconfig Variable Name   | GPIO PIN number |
+|----------------------------|-----------------|
+| CONFIG_LV_TOUCH_SPI_MISO   |   12            |
+| CONFIG_LV_TOUCH_SPI_MOSI   |   14            |
+| CONFIG_LV_TOUCH_SPI_CLK    |   26            |
+| CONFIG_LV_TOUCH_SPI_CS     |   27            |
+| CONFIG_LV_TOUCH_PIN_IRQ    |   13            |
 
 <img src="https://github.com/ishansheth/ESP32_LCD/blob/master/images/PXL_20220716_171200853.MP.jpg" alt="drawing" width="400" height="400"/>
+
+# References
+
+1. https://github.com/lvgl/lv_port_esp32
+2. https://github.com/nopnop2002/esp-idf-ili9340
 
