@@ -10,6 +10,27 @@ Example project can be found [here](https://github.com/lvgl/lv_port_esp32)
 
 In order to use LVGL and LVGL driver to display GUI with widgets, specific version of them( git commit hash) must be used.
 
+# Useful esp-idf commands
+
+- To flash the project executable:
+
+    Navigate to folder where repo is cloned  
+        
+    take the ownership of thee USB port where ESP32 is connected
+    
+        sudo chown <USER> <PORT>
+    
+    e.g. USER = Monty PORT = /dev/ttyUSB0
+    
+    flash the project executable and start monitoring
+    
+        idf.py -p <PORT> flash monitor
+        
+    To only monitor
+    
+        idf.py monitor
+        
+        
 
 # Project setup image, Configuration
 
