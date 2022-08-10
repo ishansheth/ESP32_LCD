@@ -9,6 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+
+#include "freertos/semphr.h"
 
 #define WIFI_SUCCESS 		1<<0
 #define WIFI_FAILURE 		1<<1
@@ -27,13 +30,12 @@ static char strfdate_buf[64];
 static char date_format_string[64] = "%d/%m/%Y %a";
 static char time_format_string[64] = "      %X";
 
-static lv_obj_t * tv;
-static lv_obj_t * t1;
-static lv_obj_t * t2;
-static lv_obj_t * t3;
 static lv_style_t style_box;
 
-static int wifi_connect_status = WIFI_STATUS_NOT_SET;
+static lv_point_t datetime_setting_valid_pos[] = {{0,0}, {1, 0}, {2,0}};
+
+// creating variable with external linkage because its used/set in multiple translation unit
+extern int wifi_connect_status;
 
 void timelabel_text_anim(lv_task_t * t);
 void datelabel_text_anim(lv_task_t * t);

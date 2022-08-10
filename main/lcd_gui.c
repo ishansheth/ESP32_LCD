@@ -1,7 +1,23 @@
 #include "lcd_gui.h"
 
+int wifi_connect_status = WIFI_STATUS_NOT_SET;
+char day_value_buf[32];
+char month_value_buf[32];
+char year_value_buf[32];
 
- void timelabel_text_anim(lv_task_t * t)
+char stopwatch_buf[32];
+static int stopwatch_hr = 0;
+static int stopwatch_sec = -1;
+static int stopwatch_min = 0;
+
+lv_task_t * stopwatch_countdown_task;
+lv_obj_t * stopwatch_label; 
+
+bool start_stop_watch = false;
+SemaphoreHandle_t stopwatch_semaphore;
+
+
+void timelabel_text_anim(lv_task_t * t)
 {
 	// get the current time since epoch
 	time_t now = time(NULL);
@@ -21,10 +37,10 @@
 		snprintf(strftime_buf,sizeof(strftime_buf),"Couldn't initialize time!!");
 		lv_label_set_text(label,strftime_buf);
 	}
-
+	
 }
 
- void datelabel_text_anim(lv_task_t * t)
+void datelabel_text_anim(lv_task_t * t)
 {
 	// get the current time since epoch
 	time_t now = time(NULL);
@@ -47,7 +63,7 @@
 
 }
 
- void time_format_dropdown_event_handler(lv_obj_t * obj, lv_event_t event)
+void time_format_dropdown_event_handler(lv_obj_t * obj, lv_event_t event)
 {
 	if(event == LV_EVENT_VALUE_CHANGED) 
 	{
@@ -72,7 +88,7 @@
 	}
 }
 
- void date_format_dropdown_event_handler(lv_obj_t * obj, lv_event_t event)
+void date_format_dropdown_event_handler(lv_obj_t * obj, lv_event_t event)
 {
 	if(event == LV_EVENT_VALUE_CHANGED) 
 	{
@@ -98,48 +114,154 @@
 }
 
 
- void set_datetime_done_button_handler(lv_obj_t * obj, lv_event_t event)
+void set_datetime_done_button_handler(lv_obj_t * obj, lv_event_t event)
 {
     	if(event == LV_EVENT_CLICKED) {
 		lv_obj_t* p = lv_obj_get_parent(obj);
 		lv_obj_del(p);
+        	printf("Selected day: %s\n", day_value_buf);
+        	printf("Selected month: %s\n", month_value_buf);
+        	printf("Selected year: %s\n", year_value_buf);
 	}
 }
 
- void set_date_calendar_event_handler(lv_obj_t * obj, lv_event_t event)
+void day_selector_event_handler(lv_obj_t * obj, lv_event_t event)
 {
-    	if(event == LV_EVENT_VALUE_CHANGED) 
+ 	if(event == LV_EVENT_VALUE_CHANGED) 
 	{
-		lv_calendar_date_t * date = lv_calendar_get_pressed_date(obj);
-        	if(date) 
-		{
-            		printf("Clicked date: %02d.%02d.%d\n", date->day, date->month, date->year);
-        	}
-	}
+        	lv_roller_get_selected_str(obj, day_value_buf, sizeof(day_value_buf));
+    	}	
 }
 
- void create_set_datetime_window(lv_obj_t * parent)
+void month_selector_event_handler(lv_obj_t * obj, lv_event_t event)
 {
-	lv_obj_t* set_container = lv_cont_create(parent,NULL);
-	lv_obj_set_size(set_container,250,220);
-	lv_obj_align(set_container,NULL,LV_ALIGN_CENTER,0,0);
+ 	if(event == LV_EVENT_VALUE_CHANGED) 
+	{
+        	lv_roller_get_selected_str(obj, month_value_buf, sizeof(month_value_buf));
+    	}	
+}
 
-	lv_obj_t  * calendar = lv_calendar_create(set_container, NULL);
-    	lv_obj_set_size(calendar, 230, 150);
-    	lv_obj_align(calendar, NULL, LV_ALIGN_CENTER, 0, -25);
-    	lv_obj_set_event_cb(calendar, set_date_calendar_event_handler);
+void year_selector_event_handler(lv_obj_t * obj, lv_event_t event)
+{
+ 	if(event == LV_EVENT_VALUE_CHANGED) 
+	{
+        	lv_roller_get_selected_str(obj, year_value_buf, sizeof(year_value_buf));
+    	}	
+}
 
-	lv_obj_t* btn1 = lv_btn_create(set_container, NULL);
-    	lv_obj_set_event_cb(btn1, set_datetime_done_button_handler);
-    	lv_obj_align(btn1, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, 0);
+void create_set_datetime_window(lv_obj_t * parent)
+{
 
-    	lv_obj_t* label = lv_label_create(btn1, NULL);
-    	lv_label_set_text(label, "Clear");
+    	lv_obj_t * datetime_tileview = lv_cont_create(parent, NULL);
+    	//lv_tileview_set_valid_positions(datetime_tileview, datetime_setting_valid_pos, 3);
+	lv_obj_set_size(datetime_tileview,250,220);
+	lv_obj_align(datetime_tileview,NULL,LV_ALIGN_CENTER,0,0);
+
+
+	lv_obj_t *day_selector = lv_roller_create(datetime_tileview, NULL);
+    	lv_roller_set_options(day_selector,"1\n"
+                        "2\n"
+                        "3\n"
+                        "4\n"
+                        "5\n"
+                        "6\n"
+                        "7\n"
+                        "8\n"
+                        "9\n"
+                        "10\n"
+                        "11\n"
+                        "12\n"
+                        "13\n"
+                        "14\n"
+                        "15\n"
+                        "16\n"
+                        "17\n"
+                        "18\n"
+                        "19\n"
+                        "20\n"
+                        "21\n"
+                        "22\n"
+                        "23\n"
+                        "24\n"
+                        "25\n"
+                        "26\n"
+                        "27\n"
+                        "28\n"
+                        "29\n"
+                        "30\n"
+                        "31\n",
+                        LV_ROLLER_MODE_INFINITE);
+
+    	lv_roller_set_visible_row_count(day_selector, 4);
+    	lv_obj_align(day_selector, NULL, LV_ALIGN_IN_TOP_MID, -80, 10);
+    	lv_obj_set_event_cb(day_selector, day_selector_event_handler);
+	lv_obj_set_size(day_selector,50,130);
+
+
+	lv_obj_t *month_selector = lv_roller_create(datetime_tileview, NULL);
+    	lv_roller_set_options(month_selector,"Jan\n"
+                        "Feb\n"
+                        "Mar\n"
+                        "Apr\n"
+                        "May\n"
+                        "Jun\n"
+                        "Jul\n"
+                        "Aug\n"
+                        "Sep\n"
+                        "Oct\n"
+                        "Nov\n"
+                        "Dec\n",
+                        LV_ROLLER_MODE_INFINITE);
+
+    	lv_roller_set_visible_row_count(month_selector, 4);
+    	lv_obj_align(month_selector, NULL, LV_ALIGN_IN_TOP_MID, -10, 10);
+    	lv_obj_set_event_cb(month_selector, month_selector_event_handler);
+	lv_obj_set_size(month_selector,50,130);
+
+
+	lv_obj_t *year_selector = lv_roller_create(datetime_tileview, NULL);
+    	lv_roller_set_options(year_selector,"2000\n"
+			"2001\n"
+			"2002\n"
+			"2003\n"
+			"2004\n"
+			"2005\n"
+			"2006\n"
+			"2007\n"
+			"2008\n"
+			"2009\n"
+			"2010\n"
+                        "2011\n"
+                        "2012\n"
+                        "2013\n"
+                        "2014\n"
+                        "2015\n"
+                        "2016\n"
+                        "2017\n"
+                        "2018\n"
+                        "2019\n"
+                        "2020\n"
+                        "2021\n"
+                        "2022\n",
+                        LV_ROLLER_MODE_INFINITE);
+
+    	lv_roller_set_visible_row_count(year_selector, 4);
+    	lv_obj_align(year_selector, NULL, LV_ALIGN_IN_TOP_MID, 70, 10);
+    	lv_obj_set_event_cb(year_selector, year_selector_event_handler);
+	lv_obj_set_size(year_selector,60,130);
+
+
+	lv_obj_t* done_btn = lv_btn_create(datetime_tileview, NULL);
+    	lv_obj_set_event_cb(done_btn, set_datetime_done_button_handler);
+    	lv_obj_align(done_btn, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, 0);
+
+    	lv_obj_t* done_btn_label = lv_label_create(done_btn, NULL);
+    	lv_label_set_text(done_btn_label, "Done");
 
 }
 
 
- void set_datetime_button_handler(lv_obj_t * obj, lv_event_t event)
+void set_datetime_button_handler(lv_obj_t * obj, lv_event_t event)
 {
     	if(event == LV_EVENT_CLICKED) 
 	{
@@ -186,13 +308,14 @@ void create_clock(lv_obj_t* parent)
 	lv_label_set_text(datelabel,strfdate_buf);
 
 	// create set date/time button and its label
+	/* TODO: setting date and time needs to be researched. By user its not recommended
     	lv_obj_t* btn1 = lv_btn_create(parent, NULL);
     	lv_obj_set_event_cb(btn1, set_datetime_button_handler);
     	lv_obj_align(btn1, NULL, LV_ALIGN_IN_TOP_MID, -80, 80);
 
     	lv_obj_t* label = lv_label_create(btn1, NULL);
     	lv_label_set_text(label, "Set Datetime");
-
+	*/
 	
 	// create a label for the date format drop down
 	lv_obj_t* date_format_list_text = lv_label_create(parent, NULL);	
@@ -238,9 +361,124 @@ void create_clock(lv_obj_t* parent)
 
 }
 
+void stopwatch_label_text_anim(lv_task_t * task)
+{
+
+	if (pdTRUE == xSemaphoreTake(stopwatch_semaphore, portMAX_DELAY)) 
+	{
+		if(start_stop_watch)
+		{
+
+			stopwatch_sec++;
+			if(stopwatch_sec == 59)
+			{
+				stopwatch_min++;
+				stopwatch_sec = 0;
+			}
+			if(stopwatch_min == 59)
+			{
+				stopwatch_hr++;
+				stopwatch_min = 0;
+			}
+		}
+		xSemaphoreGive(stopwatch_semaphore);
+
+	}
+
+	if(stopwatch_sec >= 0)
+	{
+	    	lv_obj_t * label = task->user_data;
+		snprintf(stopwatch_buf,sizeof(stopwatch_buf),"%d:%d:%d",stopwatch_hr,stopwatch_min,stopwatch_sec);
+		lv_label_set_text(label,stopwatch_buf);
+	}
+}
+
+void start_stopwatch_button_handler(lv_obj_t * obj, lv_event_t event)
+{
+	if (pdTRUE == xSemaphoreTake(stopwatch_semaphore, portMAX_DELAY)) 
+	{
+		if(event == LV_EVENT_CLICKED) 
+		{
+			start_stop_watch = true;
+		}
+		xSemaphoreGive(stopwatch_semaphore);
+	}
+}
+
+
+void stop_stopwatch_button_handler(lv_obj_t * obj, lv_event_t event)
+{
+	if (pdTRUE == xSemaphoreTake(stopwatch_semaphore, portMAX_DELAY)) 
+	{
+
+		if(event == LV_EVENT_CLICKED) 
+		{
+			start_stop_watch = false;
+			stopwatch_min = 0;
+			stopwatch_sec = 0;
+			stopwatch_hr = 0;
+		}
+		xSemaphoreGive(stopwatch_semaphore);
+	}
+}
+
+
+void lap_stopwatch_button_handler(lv_obj_t * obj, lv_event_t event)
+{
+	if(event == LV_EVENT_CLICKED) 
+	{
+//		lv_obj_t* p = lv_obj_get_parent(obj);
+//		lv_obj_t *day_selector = lv_roller_create(p, NULL);
+
+
+	}
+}
+
 
 void create_stopwatch(lv_obj_t* parent)
 {
+	stopwatch_semaphore = xSemaphoreCreateMutex();
+
+	// create container to display time and date
+	lv_obj_t* cont = lv_cont_create(parent, NULL);
+	// set thee alignment of the container
+	lv_obj_align(cont,NULL,LV_ALIGN_CENTER,-80,-30);
+	// set the size of container
+	lv_obj_set_size(cont,140,45);
+
+	lv_obj_t* stopwatch_label = lv_label_create(cont, NULL);
+	// align the time display label
+	lv_obj_align(stopwatch_label,NULL,LV_ALIGN_CENTER,-10,0);
+	// create a task to update the time in the time display label
+	lv_task_t * stopwatch_countdown_task = lv_task_create(stopwatch_label_text_anim, 900, LV_TASK_PRIO_LOW, stopwatch_label);
+
+	// label for min,sec,millisec
+	lv_label_set_text(stopwatch_label,"0:00:00");
+
+
+	lv_obj_t* start_btn = lv_btn_create(parent, NULL);
+    	lv_obj_set_event_cb(start_btn, start_stopwatch_button_handler);
+    	lv_obj_align(start_btn, NULL, LV_ALIGN_IN_LEFT_MID, 10, 30);
+	lv_obj_set_size(start_btn,60,40);
+
+    	lv_obj_t* start_btn_label = lv_label_create(start_btn, NULL);
+    	lv_label_set_text(start_btn_label, "Start");
+
+	lv_obj_t* stop_btn = lv_btn_create(parent, NULL);
+    	lv_obj_set_event_cb(stop_btn, stop_stopwatch_button_handler);
+    	lv_obj_align(stop_btn, NULL, LV_ALIGN_IN_LEFT_MID, 80, 30);
+	lv_obj_set_size(stop_btn,60,40);
+
+    	lv_obj_t* stop_btn_label = lv_label_create(stop_btn, NULL);
+    	lv_label_set_text(stop_btn_label, "Stop");
+
+	lv_obj_t* lap_btn = lv_btn_create(parent, NULL);
+    	lv_obj_set_event_cb(lap_btn, lap_stopwatch_button_handler);
+    	lv_obj_align(lap_btn, NULL, LV_ALIGN_IN_LEFT_MID, 150, 30);
+	lv_obj_set_size(lap_btn,60,40);
+
+    	lv_obj_t* lap_btn_label = lv_label_create(lap_btn, NULL);
+    	lv_label_set_text(lap_btn_label, "Lap");
 
 }
 

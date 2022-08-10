@@ -1,3 +1,4 @@
+// libc includes
 #include <time.h>
 #include <errno.h>
 #include <sys/fcntl.h>
@@ -39,7 +40,6 @@
 
 static const char wifi_tag[] = "[WIFI Connect]";
 
-SemaphoreHandle_t xGuiSemaphore;
 SemaphoreHandle_t clock_semaphone;
 
 static EventGroupHandle_t wifi_event_group;
@@ -56,28 +56,20 @@ static void create_demo_application(void)
 	lv_style_set_border_width(&style_btn,LV_STATE_DEFAULT, 2);
 
 
-	tv = lv_tabview_create(lv_scr_act(), NULL);
+	lv_obj_t* tv = lv_tabview_create(lv_scr_act(), NULL);
 	lv_obj_add_style(tv,LV_OBJ_PART_MAIN, &style_btn);
 
-    	t1 = lv_tabview_add_tab(tv, "Clock");
-    	t2 = lv_tabview_add_tab(tv, "StopWatch");
-    	t3 = lv_tabview_add_tab(tv, "Timer");
+    	lv_obj_t* t1 = lv_tabview_add_tab(tv, "Clock");
+    	lv_obj_t* t2 = lv_tabview_add_tab(tv, "StopWatch");
+    	lv_obj_t* t3 = lv_tabview_add_tab(tv, "Timer");
 
 	create_clock(t1);
 	create_stopwatch(t2);
 
-
 	while (1) {
-        	/* Delay 1 tick (assumes FreeRTOS tick is 10ms */
         	vTaskDelay(pdMS_TO_TICKS(10));
 
-        	/* Try to take the semaphore, call lvgl related function on success */
-
-
-        	if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) {
-            		lv_task_handler();
-            		xSemaphoreGive(xGuiSemaphore);
-       		}
+        		lv_task_handler();
 
     	}
 
@@ -251,17 +243,13 @@ static int obtain_time(void)
 		setenv("TZ", "CEST-2", 1);
     		tzset();
     		localtime_r(&now, &timeinfo);
-    		strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
-    		ESP_LOGI(TAG, "The current date/time in DE is: %s", strftime_buf);
 		wifi_connect_status = WIFI_SUCCESS;
-
     	}
 	return 1;
 }
 
 void app_main(void)
 {
-	xGuiSemaphore = xSemaphoreCreateMutex();
 	clock_semaphone = xSemaphoreCreateMutex();
 
 	lv_init();
