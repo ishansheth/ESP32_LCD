@@ -78,7 +78,13 @@ The below values are assigned depending on the GPIO pin assignment
 | CONFIG_LV_TOUCH_SPI_CS     |   27            |
 | CONFIG_LV_TOUCH_PIN_IRQ    |   13            |
 
-<img src="https://github.com/ishansheth/ESP32_LCD/blob/master/images/PXL_20220716_171200853.MP.jpg" alt="drawing" width="400" height="400"/>
+## Clock Tab Image
+
+<img src="https://github.com/ishansheth/ESP32_LCD/blob/gui_development/images/PXL_20220716_171200853.MP.jpg" alt="drawing" width="400" height="400"/>
+
+## Stopwatch Tab Image
+
+<img src="https://github.com/ishansheth/ESP32_LCD/blob/gui_development/images/PXL_20220811_092030499.MP.jpg" alt="drawing" width="400" height="400"/>
 
 # References
 
