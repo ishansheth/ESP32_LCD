@@ -88,6 +88,12 @@ The below values are assigned depending on the GPIO pin assignment
 
 # References
 
-1. https://github.com/lvgl/lv_port_esp32
-2. https://github.com/nopnop2002/esp-idf-ili9340
+1. https://www.freertos.org/Documentation/RTOS_book.html
+2. https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/index.html
+3. https://docs.lvgl.io/7.11/widgets/index.html
+4. https://github.com/lvgl/lv_port_esp32
+5. https://github.com/nopnop2002/esp-idf-ili9340
+
+
+
 
