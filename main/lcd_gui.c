@@ -12,6 +12,8 @@ static int stopwatch_min = 0;
 
 lv_task_t * stopwatch_countdown_task;
 lv_obj_t * stopwatch_label; 
+lv_obj_t * stopwatch_lap_list; 
+
 
 bool start_stop_watch = false;
 SemaphoreHandle_t stopwatch_semaphore;
@@ -420,17 +422,26 @@ void stop_stopwatch_button_handler(lv_obj_t * obj, lv_event_t event)
 		}
 		xSemaphoreGive(stopwatch_semaphore);
 	}
+
+	uint16_t num_elements =	lv_list_get_size(stopwatch_lap_list);
+	for(uint8_t i = 0; i < num_elements; i++)
+		lv_list_remove(stopwatch_lap_list,i);
+
+	lv_obj_set_hidden(stopwatch_lap_list, true);
 }
 
 
 void lap_stopwatch_button_handler(lv_obj_t * obj, lv_event_t event)
 {
-	if(event == LV_EVENT_CLICKED) 
+
+	if (pdTRUE == xSemaphoreTake(stopwatch_semaphore, portMAX_DELAY))
 	{
-//		lv_obj_t* p = lv_obj_get_parent(obj);
-//		lv_obj_t *day_selector = lv_roller_create(p, NULL);
-
-
+		if(event == LV_EVENT_CLICKED) 
+		{
+			lv_obj_set_hidden(stopwatch_lap_list, false);
+			lv_obj_t * list_btn = lv_list_add_btn(stopwatch_lap_list, NULL, stopwatch_buf);
+		}
+		xSemaphoreGive(stopwatch_semaphore);
 	}
 }
 
@@ -442,7 +453,7 @@ void create_stopwatch(lv_obj_t* parent)
 	// create container to display time and date
 	lv_obj_t* cont = lv_cont_create(parent, NULL);
 	// set thee alignment of the container
-	lv_obj_align(cont,NULL,LV_ALIGN_CENTER,-80,-30);
+	lv_obj_align(cont,NULL,LV_ALIGN_CENTER,-100,-50);
 	// set the size of container
 	lv_obj_set_size(cont,140,45);
 
@@ -458,7 +469,7 @@ void create_stopwatch(lv_obj_t* parent)
 
 	lv_obj_t* start_btn = lv_btn_create(parent, NULL);
     	lv_obj_set_event_cb(start_btn, start_stopwatch_button_handler);
-    	lv_obj_align(start_btn, NULL, LV_ALIGN_IN_LEFT_MID, 10, 30);
+    	lv_obj_align(start_btn, NULL, LV_ALIGN_IN_LEFT_MID, 15, 10);
 	lv_obj_set_size(start_btn,60,40);
 
     	lv_obj_t* start_btn_label = lv_label_create(start_btn, NULL);
@@ -466,7 +477,7 @@ void create_stopwatch(lv_obj_t* parent)
 
 	lv_obj_t* stop_btn = lv_btn_create(parent, NULL);
     	lv_obj_set_event_cb(stop_btn, stop_stopwatch_button_handler);
-    	lv_obj_align(stop_btn, NULL, LV_ALIGN_IN_LEFT_MID, 80, 30);
+    	lv_obj_align(stop_btn, NULL, LV_ALIGN_IN_LEFT_MID, 15, 60);
 	lv_obj_set_size(stop_btn,60,40);
 
     	lv_obj_t* stop_btn_label = lv_label_create(stop_btn, NULL);
@@ -474,11 +485,17 @@ void create_stopwatch(lv_obj_t* parent)
 
 	lv_obj_t* lap_btn = lv_btn_create(parent, NULL);
     	lv_obj_set_event_cb(lap_btn, lap_stopwatch_button_handler);
-    	lv_obj_align(lap_btn, NULL, LV_ALIGN_IN_LEFT_MID, 150, 30);
+    	lv_obj_align(lap_btn, NULL, LV_ALIGN_IN_LEFT_MID, 85, 10);
 	lv_obj_set_size(lap_btn,60,40);
 
     	lv_obj_t* lap_btn_label = lv_label_create(lap_btn, NULL);
     	lv_label_set_text(lap_btn_label, "Lap");
+	
+	// create a lap list, set its alignment, set it hidden
+	stopwatch_lap_list = lv_list_create(parent, NULL);
+	lv_obj_align(stopwatch_lap_list,NULL,LV_ALIGN_CENTER,150,20);
+	lv_obj_set_size(stopwatch_lap_list,100,150);
+	lv_obj_set_hidden(stopwatch_lap_list, true);
 
 }
 
