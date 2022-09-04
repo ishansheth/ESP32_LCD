@@ -12,6 +12,7 @@
 #include "freertos/FreeRTOS.h"
 
 #include "freertos/semphr.h"
+#include "touch_driver.h"
 
 #define WIFI_SUCCESS 		1<<0
 #define WIFI_FAILURE 		1<<1
@@ -24,15 +25,11 @@
 // have internal linkage
 // https://stackoverflow.com/questions/2328671/constant-variables-not-working-in-header
 
-static char strftime_buf[64];
-static char strfdate_buf[64];
+static char strftime_buf[32];
+static char strfdate_buf[32];
 
-static char date_format_string[64] = "%d/%m/%Y %a";
-static char time_format_string[64] = "      %X";
-
-static lv_style_t style_box;
-
-static lv_point_t datetime_setting_valid_pos[] = {{0,0}, {1, 0}, {2,0}};
+static char date_format_string[16] = "%d/%m/%Y %a";
+static char time_format_string[16] = "      %X";
 
 // creating variable with external linkage because its used/set in multiple translation unit
 extern int wifi_connect_status;
@@ -47,6 +44,9 @@ void create_set_datetime_window(lv_obj_t * parent);
 void set_datetime_button_handler(lv_obj_t * obj, lv_event_t event);
 void create_clock(lv_obj_t* parent);
 void create_stopwatch(lv_obj_t* parent);
+void create_stopwatch(lv_obj_t* parent);
+void display_system_runtime_stat(lv_obj_t* parent);
+
 
 #endif
 

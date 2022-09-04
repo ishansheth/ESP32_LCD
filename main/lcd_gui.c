@@ -1,19 +1,21 @@
 #include "lcd_gui.h"
 
 int wifi_connect_status = WIFI_STATUS_NOT_SET;
-char day_value_buf[32];
-char month_value_buf[32];
-char year_value_buf[32];
+char day_value_buf[16];
+char month_value_buf[16];
+char year_value_buf[16];
 
-char stopwatch_buf[32];
-static int stopwatch_hr = 0;
-static int stopwatch_sec = -1;
-static int stopwatch_min = 0;
+char stopwatch_buf[16];
+static uint8_t stopwatch_hr = 0;
+static uint8_t stopwatch_sec = -1;
+static uint8_t stopwatch_min = 0;
 
 lv_task_t * stopwatch_countdown_task;
 lv_obj_t * stopwatch_label; 
 lv_obj_t * stopwatch_lap_list; 
+lv_obj_t * drawingpad_canvas; 
 
+// static buffer for the drawingpad_canvas
 
 bool start_stop_watch = false;
 SemaphoreHandle_t stopwatch_semaphore;
@@ -466,7 +468,6 @@ void create_stopwatch(lv_obj_t* parent)
 	// label for min,sec,millisec
 	lv_label_set_text(stopwatch_label,"0:00:00");
 
-
 	lv_obj_t* start_btn = lv_btn_create(parent, NULL);
     	lv_obj_set_event_cb(start_btn, start_stopwatch_button_handler);
     	lv_obj_align(start_btn, NULL, LV_ALIGN_IN_LEFT_MID, 15, 10);
@@ -498,4 +499,28 @@ void create_stopwatch(lv_obj_t* parent)
 	lv_obj_set_hidden(stopwatch_lap_list, true);
 
 }
+
+void display_system_runtime_stat(lv_obj_t* parent)
+{
+	static lv_style_t label_shadow_style;
+	lv_style_init(&label_shadow_style);
+    	lv_style_set_text_color(&label_shadow_style, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+
+	static char stat_buffer[512];
+	lv_obj_t* stat_label = lv_label_create(parent, NULL);
+	lv_obj_align(stat_label,NULL,LV_ALIGN_IN_TOP_LEFT,0,0);
+	lv_obj_add_style(stat_label, LV_LABEL_PART_MAIN, &label_shadow_style);
+
+	while(1)
+	{
+		vTaskGetRunTimeStats(stat_buffer);
+		lv_label_set_text(stat_label,stat_buffer);
+		vTaskDelay(pdMS_TO_TICKS(5000));
+	}
+
+}
+
+
+
+
 

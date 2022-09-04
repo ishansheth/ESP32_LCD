@@ -13,12 +13,10 @@
 #include "freertos/event_groups.h"
 
 // esp-idf includes
-#include "esp_event.h"
 #include "esp_timer.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_event.h"
-#include "esp_log.h"
 #include "esp_sntp.h"
 #include "esp_log.h"
 
@@ -40,10 +38,13 @@
 
 static const char wifi_tag[] = "[WIFI Connect]";
 
-SemaphoreHandle_t clock_semaphone;
+SemaphoreHandle_t clock_semaphore;
+SemaphoreHandle_t tab_semaphore;
 
 static EventGroupHandle_t wifi_event_group;
 static int s_retry_num = 0;
+lv_obj_t* sys_stat_tab;
+
 
 static void create_demo_application(void)
 {
@@ -55,22 +56,21 @@ static void create_demo_application(void)
 	lv_style_set_bg_opa(&style_btn,LV_STATE_DEFAULT, LV_OPA_50);
 	lv_style_set_border_width(&style_btn,LV_STATE_DEFAULT, 2);
 
-
 	lv_obj_t* tv = lv_tabview_create(lv_scr_act(), NULL);
 	lv_obj_add_style(tv,LV_OBJ_PART_MAIN, &style_btn);
 
     	lv_obj_t* t1 = lv_tabview_add_tab(tv, "Clock");
     	lv_obj_t* t2 = lv_tabview_add_tab(tv, "StopWatch");
-    	lv_obj_t* t3 = lv_tabview_add_tab(tv, "Timer");
+    	sys_stat_tab = lv_tabview_add_tab(tv, "Sys Stat");
+	xSemaphoreGive(tab_semaphore);
 
 	create_clock(t1);
 	create_stopwatch(t2);
 
-	while (1) {
+	while (1) 
+	{
         	vTaskDelay(pdMS_TO_TICKS(10));
-
-        		lv_task_handler();
-
+       		lv_task_handler();
     	}
 
 }
@@ -166,19 +166,23 @@ static int initialise_wifi(void)
 
 	wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
 	ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-
+	
+	// create event group
 	wifi_event_group = xEventGroupCreate();
 	
+	// set connect to wifi event handler	
 	esp_event_handler_instance_t wifi_handler_event_instance;
 	ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,ESP_EVENT_ANY_ID,&wifi_event_handler,NULL,&wifi_handler_event_instance));
 
+	// set obtained IP event handler
 	esp_event_handler_instance_t got_ip_event_instance;
 	ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT,IP_EVENT_STA_GOT_IP,&ip_event_handler,NULL,&got_ip_event_instance));
 
+	
 	wifi_config_t wifi_config = {
 		.sta = {
-			.ssid = "FRITZ!Box 7520 HD",
-			.password="04879856581287203287",
+			.ssid = "Vodafone-8F54",
+			.password="bb4LMgGLAFAmLzcJ",
 			.threshold.authmode = WIFI_AUTH_WPA2_PSK,
 			.pmf_cfg = {
 				.capable=true,
@@ -187,14 +191,18 @@ static int initialise_wifi(void)
 			},
 		};
 
-	
+	// set wifi mode to wifi station	
 	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+	// set the configuration
 	ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA,&wifi_config));
+	// start the wifi
 	ESP_ERROR_CHECK(esp_wifi_start());
 	ESP_LOGI(wifi_tag,"STA initialization complete");
 	
+	// wait until either WIFI_SUCCESS or WIFI_FAILURE bits are set in the wifi_event_group
 	EventBits_t bits = xEventGroupWaitBits(wifi_event_group,WIFI_SUCCESS|WIFI_FAILURE,pdFALSE,pdFALSE,portMAX_DELAY);
 	
+	// check the set value inside bits
 	if (bits & WIFI_SUCCESS)
 		status = WIFI_SUCCESS;
 	else if(bits & WIFI_FAILURE)
@@ -205,6 +213,7 @@ static int initialise_wifi(void)
 		status = WIFI_FAILURE;
 	}
 
+	// deregister handlers and delete event group
 	ESP_ERROR_CHECK(esp_event_handler_instance_unregister(IP_EVENT,IP_EVENT_STA_GOT_IP,got_ip_event_instance));
 	ESP_ERROR_CHECK(esp_event_handler_instance_unregister(WIFI_EVENT,ESP_EVENT_ANY_ID,wifi_handler_event_instance));
 	vEventGroupDelete(wifi_event_group);
@@ -248,9 +257,20 @@ static int obtain_time(void)
 	return 1;
 }
 
+
+void prvStatTask(void* para)
+{
+	xSemaphoreTake( tab_semaphore, portMAX_DELAY );
+	display_system_runtime_stat(sys_stat_tab);
+
+}
+
+
 void app_main(void)
 {
-	clock_semaphone = xSemaphoreCreateMutex();
+	clock_semaphore = xSemaphoreCreateMutex();
+	tab_semaphore = xSemaphoreCreateBinary();
+
 
 	lv_init();
 
@@ -284,6 +304,7 @@ void app_main(void)
     	indev_drv.type = LV_INDEV_TYPE_POINTER;
     	lv_indev_drv_register(&indev_drv);
 
+	
     	/* Create and start a periodic timer interrupt to call lv_tick_inc */
     	const esp_timer_create_args_t periodic_timer_args = {
 	        .callback = &lv_tick_task,
@@ -299,17 +320,24 @@ void app_main(void)
 	gpio_set_direction(LCD_BACKLIGHT,GPIO_MODE_OUTPUT);	
 
 	BaseType_t push_button_check_handle = xTaskCreatePinnedToCore(button_push_handler, "CheckButtonStatus", 1024,  xTaskGetCurrentTaskHandle(), 10,NULL,0);
+	if(push_button_check_handle == pdPASS)
+		ESP_LOGI(TAG,"Push button check task created");
 
-	// run LVGL GUI on core 1 of ESP32
-	
+	BaseType_t display_stat_handle = xTaskCreatePinnedToCore(prvStatTask, "DisplayRunTimeStat", 1024*2,  xTaskGetCurrentTaskHandle(), 10,NULL,0);
+	if(display_stat_handle == pdPASS)
+		ESP_LOGI(TAG,"Display Runtime Stat task created");
+
+	// run LVGL GUI on core 1 of ESP32	
 	BaseType_t gui_task_handle = xTaskCreatePinnedToCore(create_demo_application, "GUITask", 1024*4,  xTaskGetCurrentTaskHandle(), 10,NULL,1);
+	if(gui_task_handle == pdPASS)
+		ESP_LOGI(TAG,"GUI task created");
 
 	ESP_ERROR_CHECK( nvs_flash_init() );
 
-	if (pdTRUE == xSemaphoreTake(clock_semaphone, portMAX_DELAY)) 
+	if (pdTRUE == xSemaphoreTake(clock_semaphore, portMAX_DELAY)) 
 	{
 		obtain_time();
-		xSemaphoreGive(clock_semaphone);
+		xSemaphoreGive(clock_semaphore);
 	}
 
 
