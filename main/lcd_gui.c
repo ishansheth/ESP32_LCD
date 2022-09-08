@@ -407,6 +407,12 @@ void start_stopwatch_button_handler(lv_obj_t * obj, lv_event_t event)
 		}
 		xSemaphoreGive(stopwatch_semaphore);
 	}
+	uint16_t num_elements =	lv_list_get_size(stopwatch_lap_list);
+	for(uint8_t i = 0; i < num_elements; i++)
+		lv_list_remove(stopwatch_lap_list,i);
+
+	lv_obj_set_hidden(stopwatch_lap_list, true);
+
 }
 
 
@@ -425,11 +431,6 @@ void stop_stopwatch_button_handler(lv_obj_t * obj, lv_event_t event)
 		xSemaphoreGive(stopwatch_semaphore);
 	}
 
-	uint16_t num_elements =	lv_list_get_size(stopwatch_lap_list);
-	for(uint8_t i = 0; i < num_elements; i++)
-		lv_list_remove(stopwatch_lap_list,i);
-
-	lv_obj_set_hidden(stopwatch_lap_list, true);
 }
 
 
