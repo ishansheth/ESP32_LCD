@@ -1,5 +1,6 @@
 # ESP32_LCD
 
+To set up the ESP-IDF, go through this [link](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/get-started/linux-macos-setup.html)
 ESP32 project to display a GUI on ILI9341 320x240 LCD with touch. GUI consist of the clock and stopwatch. 
 
 # Used packages
@@ -92,8 +93,8 @@ The below values are assigned depending on the GPIO pin assignment
 2. [ESP-IDF API guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/index.html)
 3. [LVGL Widgets documentation](https://docs.lvgl.io/7.11/widgets/index.html)
 4. [LVGL with ESP-IDF project](https://docs.lvgl.io/7.11/get-started/espressif.html)
-4. [Sample ESP-IDF project with LVGL](https://github.com/lvgl/lv_port_esp32)
-5. [Example ESP32 project with LCD](https://github.com/nopnop2002/esp-idf-ili9340)
+5. [Sample ESP-IDF project with LVGL](https://github.com/lvgl/lv_port_esp32)
+6. [Example ESP32 project with LCD](https://github.com/nopnop2002/esp-idf-ili9340)
 
 
 
