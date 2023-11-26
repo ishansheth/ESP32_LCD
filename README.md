@@ -2,6 +2,8 @@
 
 ESP32 project to display a GUI on ILI9341 320x240 LCD with touch. GUI consist of the clock and stopwatch. 
 
+To set up the ESP-IDF, go through this [link](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/get-started/linux-macos-setup.html)
+
 # Used packages
 - [LVGL](https://github.com/lvgl/lvgl)
 - [LVGL Drivers](https://github.com/lvgl/lvgl_esp32_drivers)
@@ -15,11 +17,11 @@ In order to use LVGL and LVGL driver to display GUI with widgets, specific versi
 
     Navigate to folder where repo is cloned  
         
-    take the ownership of thee USB port where ESP32 is connected
+    take the ownership of the USB port where ESP32 is connected
     
         sudo chown <USER> <PORT>
     
-    e.g. USER = Monty PORT = /dev/ttyUSB0
+    e.g. USER = Monty, PORT = /dev/ttyUSB0
     
     flash the project executable and start monitoring
     
