@@ -59,14 +59,16 @@ After connecting LCD pins, too GPIO, these configuration must be done in the con
 
 Select `Component Config->LVGL TFT Display controller->Select a display controller model` and select `ILI9341` from the options
 
-## Touch controlle XPT2046 pin connections with ESP32
+## Touch controller XPT2046 pin connections with ESP32
+
+To configure XPT2046 as a touch controller, select `Component Config->LVGL Touch controller->Select Touchpanel controller model` and select `XPT2056` from options. 
 Since both LCD controller and touch controller are connected on SPI bus, the values of MISO, MOSI, and CLK is same, only CS (Slave Select) is connected to ddifferent GPIO pin. To configure 
 touch controller, go to `menucinfig` and select `Component Config->LVGL Touch controller->Touchpanel (XPT2056) Pin Assignments`
 
-| Pin Name     | Menuconfig      | GPIO Pin Number |
+|   Pin Name   | Menuconfig      | GPIO Pin Number |
 |--------------|-----------------|-----------------|
-| T_DO  (MOSI) |  GPIO for MISO  |       14        |
-| T_DIN (MISO) |  GPIO for MOSI  |       34        |
+| T_DO  (MISO) |  GPIO for MISO  |       34        |
+| T_DIN (MOSI) |  GPIO for MOSI  |       14        |
 |    T_CS      |  GPIO for CS    |       32        |
 |    T_CLK     |  GPIO for CLK   |       23        |
 
