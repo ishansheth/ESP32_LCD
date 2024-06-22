@@ -42,11 +42,12 @@ set in sdkconfig file using menuconfig in esp-idf (_idf.py menuconfig_). It can 
 
 | Menuconfig Variable Name | GPIO PIN number |
 |--------------------------|-----------------|
-| CONFIG_LV_TOUCH_SPI_MISO |       12        |
+| CONFIG_LV_TOUCH_SPI_MISO |       34        |
 | CONFIG_LV_TOUCH_SPI_MOSI |       14        |
 | CONFIG_LV_TOUCH_SPI_CLK  |       26        |
 | CONFIG_LV_TOUCH_SPI_CS   |       27        |
 | CONFIG_LV_TOUCH_PIN_IRQ  |       13        |
+|        DC                |       35        |
 
 ## Touchpanel Configuration for ILI93411 320x240
 
@@ -74,10 +75,10 @@ The below values are assigned depending on the GPIO pin assignment
 
 | Menuconfig Variable Name   | GPIO PIN number |
 |----------------------------|-----------------|
-| CONFIG_LV_TOUCH_SPI_MISO   |   12            |
-| CONFIG_LV_TOUCH_SPI_MOSI   |   14            |
+| CONFIG_LV_TOUCH_SPI_MISO   |   25            |
+| CONFIG_LV_TOUCH_SPI_MOSI   |   33            |
 | CONFIG_LV_TOUCH_SPI_CLK    |   26            |
-| CONFIG_LV_TOUCH_SPI_CS     |   27            |
+| CONFIG_LV_TOUCH_SPI_CS     |   32            |
 | CONFIG_LV_TOUCH_PIN_IRQ    |   13            |
 
 ## Clock Tab Image
