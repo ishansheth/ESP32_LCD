@@ -11,28 +11,6 @@ To set up the ESP-IDF, go through this [link](https://docs.espressif.com/project
 
 In order to use LVGL and LVGL driver to display GUI with widgets, specific version of them( git commit hash) must be used.
 
-# Useful esp-idf commands
-
-- To flash the project executable:
-
-    Navigate to folder where repo is cloned  
-        
-    take the ownership of the USB port where ESP32 is connected
-    
-        sudo chown <USER> <PORT>
-    
-    e.g. USER = Monty, PORT = /dev/ttyUSB0
-    
-    flash the project executable and start monitoring
-    
-        idf.py -p <PORT> flash monitor
-        
-    To only monitor the process via serial port
-    
-        idf.py monitor
-        
-        
-
 # ILI9341 with XPT2046 pin connections
 
 LCD ILI9341 comes with the touch controller XPT 2046. LCD and touch controller both are connected to ESP32 on SPI bus. 
@@ -98,6 +76,26 @@ LCD resolution 320x240 canbe configured in `Component Config->LVGL configuration
 ## Stopwatch Tab Image
 
 <img src="https://github.com/ishansheth/ESP32_LCD/blob/gui_development/images/PXL_20220811_092030499.MP.jpg" alt="drawing" width="400" height="400"/>
+
+# Useful esp-idf commands
+
+- To flash the project executable:
+
+    Navigate to folder where repo is cloned  
+        
+- In order to flash, take the ownership of the USB port where ESP32 is connected
+    
+        sudo chown <USER> <PORT>
+    
+    e.g. USER = Monty, PORT = /dev/ttyUSB0
+    
+- To flash the project executable and start monitoring
+    
+        idf.py -p <PORT> flash monitor
+        
+- To only monitor the process via serial port
+    
+        idf.py monitor
 
 # References
 
