@@ -47,48 +47,47 @@ After connecting LCD pins, too GPIO, these configuration must be done in the con
 
 | Pin Name   |        Menuconfig              | GPIO PIN number |
 |------------|--------------------------------|-----------------|
-| SDO(MISO ) |        GPIO for MOSI           |       14        |
-| SDI(MOSI)  |        GPIO for MISO           |       34        |
+| SDI(MOSI)  |        GPIO for MOSI           |       14        |
+| SDO(MISO)  |        GPIO for MISO           |       34        |
 | SCK(CLK)   | GPIO for CLK(SCK/Serial Clock) |       23        |
 |    CS      | GPIO for CS (Slave select)     |       27        |
 |    DC      | GPIO for DC (Data/Command)     |       22        |
-|    GND     |                                |  ESP32 GND Pin  |
-|    VCC     |                                |  ESP32 Vcc Pin  |
-|    LED     |                                |  ESP32 Vcc Pin  |
+|    GND     |            -                   |  ESP32 GND Pin  |
+|    VCC     |            -                   |  ESP32 3v3 Pin  |
+|    LED     |            -                   |  ESP32 3v3 Pin  |
 |    Reset   |        GPIO for Reset          |       12        |
 
+Select `Component Config->LVGL TFT Display controller->Select a display controller model` and select `ILI9341` from the options
 
-## Touchpanel Configuration for ILI93411 320x240
+## Touch controlle XPT2046 pin connections with ESP32
+Since both LCD controller and touch controller are connected on SPI bus, the values of MISO, MOSI, and CLK is same, only CS (Slave Select) is connected to ddifferent GPIO pin. To configure 
+touch controller, go to `menucinfig` and select `Component Config->LVGL Touch controller->Touchpanel (XPT2056) Pin Assignments`
 
-The values of X min/max and Y min/max indicate the raw values from XPT2046 controller when a respective corner of the LCD screen is touched. 
-The below values determined when the LCD is used in _landscape_ mode. Depending on the mode (landscape or portrait), the values in italic fonts should be changed/swapped.
+| Pin Name     | Menuconfig      | GPIO Pin Number |
+|--------------|-----------------|-----------------|
+| T_DO  (MOSI) |  GPIO for MISO  |       14        |
+| T_DIN (MISO) |  GPIO for MOSI  |       34        |
+|    T_CS      |  GPIO for CS    |       32        |
+|    T_CLK     |  GPIO for CLK   |       23        |
 
-| Menuconfig Variable Name | values |
-|--------------------------|--------|
-|  CONFIG_LV_HOR_RES_MAX   |  320   |
-|  CONFIG_LV_VER_RES_MAX   |  240   |
-|  CONFIG_LV_TOUCH_X_MIN   |  183   | 
-|  CONFIG_LV_TOUCH_Y_MIN   |  134   |
-|  CONFIG_LV_TOUCH_X_MAX   |  1959  |
-|  CONFIG_LV_TOUCH_Y_MAX   |  1843  |
+LVGL touch drives also needs to know about the values/data provided by XPT2046 pin when the surface of LCD is touched at min/max X coordinate (lower left and upper right corner) and min/max Y coordinate (lower right ad upper left corner).
+For this go to `Component Config->LVGL Touch controller->Touchpanel Configuration` 
+
+|           Menuconfig          | values |
+|-------------------------------|--------|
+|  Minimum X coordinate value   |  183   | 
+|  Minimum Y coordinate value   |  134   |
+|  Maximum X coordinate value   |  1959  |
+|  Maximum Y coordinate value   |  1843  |
 
 The below values should be constant as X/Y values require inversion (y means marked in menuconfig GUI)
 
 | Menuconfig Variable Name   | values |
 |----------------------------|--------|
-| CONFIG_LV_TOUCH_INVERT_X   |   y    |
-| CONFIG_LV_TOUCH_INVERT_Y   |   y    |
-| CONFIG_LV_TOUCH_DETECT_IRQ |   y    |
+| Invert X coordinate value  |   y    |
+| Invert X coordinate value  |   y    |
 
-The below values are assigned depending on the GPIO pin assignment
-
-| Menuconfig Variable Name   | GPIO PIN number |
-|----------------------------|-----------------|
-| CONFIG_LV_TOUCH_SPI_MISO   |   25            |
-| CONFIG_LV_TOUCH_SPI_MOSI   |   33            |
-| CONFIG_LV_TOUCH_SPI_CLK    |   26            |
-| CONFIG_LV_TOUCH_SPI_CS     |   32            |
-| CONFIG_LV_TOUCH_PIN_IRQ    |   13            |
+LCD resolution 320x240 canbe configured in `Component Config->LVGL configuration` 
 
 ## Clock Tab Image
 
