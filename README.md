@@ -38,7 +38,7 @@ In order to use LVGL and LVGL driver to display GUI with widgets, specific versi
 LCD ILI9341 comes with the touch controller XPT 2046. LCD and touch controller both are connected to ESP32 on SPI bus. 
 As shown in the image of the back side of LCD, there are different set of pins for both of them and they needs to be connected to the GPIO pins of ESP32.
 
-<img src="https://github.com/ishansheth/ESP32_LCD/blob/gui_development/images/PXL_20220716_171200853.MP.jpg" alt="drawing" width="400" height="400"/>
+<img src="https://github.com/ishansheth/ESP32_LCD/blob/gui_development/images/ili9341_backside.jpg" alt="drawing" width="400" height="400"/>
 
 After connecting LCD pins, too GPIO, these configuration must be done in the configuration of the project. For this esp-idf provides menuconfig.
 `idf.py menuconfig` command opens the menuconfig. Select `Component Config->LVGL TFT Display controller->Display Pin Assignments` and enter the following values
