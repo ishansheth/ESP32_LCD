@@ -1,6 +1,6 @@
 # ESP32_LCD
 
-ESP32 project to display a GUI on ILI9341 320x240 LCD with touch. GUI consist of the clock and stopwatch. 
+ESP32 project to display a GUI on ILI9341 320x240 LCD with touch controls. GUI consist of the clock and stopwatch. 
 
 To set up the ESP-IDF, go through this [link](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/get-started/linux-macos-setup.html)
 
@@ -39,9 +39,9 @@ After connecting LCD pins to GPIO, these configuration must be done in the proje
 * Select `Component Config->LVGL TFT Display controller->Display orientation` and select `Landscape` from the options
 * Select `Component Config->LVGL TFT Display controller->TFT SPI Bus` and select `HSPI` from the options
 
-## Touch controller XPT2046 pin connections with ESP32
+## Touch controller XPT2046 Pin assignaments to ESP32 GPIO number
 Since both LCD controller and touch controller are connected on SPI bus, the values of MISO, MOSI, and CLK is same, only CS (Slave Select) is connected to ddifferent GPIO pin. To configure 
-touch controller, go to `menucinfig` and select `Component Config->LVGL Touch controller->Touchpanel (XPT2056) Pin Assignments`
+touch controller, go to `menuconfig` and select `Component Config->LVGL Touch controller->Touchpanel (XPT2056) Pin Assignments`
 
 |   Pin Name   | Menuconfig      | GPIO Pin Number |
 |--------------|-----------------|-----------------|
