@@ -13,15 +13,16 @@ In order to use LVGL and LVGL driver to display GUI with widgets, specific versi
 
 # LCD controller ILI9341 with touch controller XPT2046 pin connections
 
-LCD ILI9341 comes with the touch controller XPT 2046. LCD and touch controller both are connected to ESP32 on SPI bus. 
+LCD ILI9341 comes with the touch controller XPT2046. LCD and touch controller both are connected to ESP32 on SPI bus. 
 As shown in the image of the back side of LCD, there are different set of pins for both of them and they needs to be connected to the GPIO pins of ESP32.
 
 <img src="https://github.com/ishansheth/ESP32_LCD/blob/gui_development/images/ili9341_backside.jpg" alt="drawing" width="800" height="450"/>
 
 After connecting LCD pins to GPIO, these configuration must be done in the project. For this esp-idf provides menuconfig.
-`idf.py menuconfig` command opens the menuconfig. Select `Component Config->LVGL TFT Display controller->Display Pin Assignments` and enter the following values
+`idf.py menuconfig` command opens the menuconfig.
 
 ## LCD Pin Assignments to ESP32 GPIO number
+Select `Component Config->LVGL TFT Display controller->Display Pin Assignments` and enter the following values
 
 | Pin Name   |        Menuconfig              | GPIO PIN number |
 |------------|--------------------------------|-----------------|
@@ -36,11 +37,11 @@ After connecting LCD pins to GPIO, these configuration must be done in the proje
 |    Reset   |        GPIO for Reset          |       12        |
 
 * Select `Component Config->LVGL TFT Display controller->Select a display controller model` and select `ILI9341` from the options
-* Select `Component Config->LVGL TFT Display controller->Display orientation` and select `Landscape` from the options
+* Select `Component Config->LVGL TFT Display controller->Display orientation` and select `Landscape` from the options. Here `Portrait` can also be selected
 * Select `Component Config->LVGL TFT Display controller->TFT SPI Bus` and select `HSPI` from the options
 
 ## Touch controller XPT2046 Pin assignaments to ESP32 GPIO number
-Since both LCD controller and touch controller are connected on SPI bus, the values of MISO, MOSI, and CLK is same, only CS (Slave Select) is connected to ddifferent GPIO pin. To configure 
+Since both LCD controller and touch controller are connected on SPI bus, the values of MISO, MOSI, and CLK is same, only CS (Slave Select) is connected to different GPIO pin. To configure 
 touch controller, go to `menuconfig` and select `Component Config->LVGL Touch controller->Touchpanel (XPT2056) Pin Assignments`
 
 |   Pin Name   | Menuconfig      | GPIO Pin Number |
@@ -50,7 +51,7 @@ touch controller, go to `menuconfig` and select `Component Config->LVGL Touch co
 |    T_CS      |  GPIO for CS    |       32        |
 |    T_CLK     |  GPIO for CLK   |       23        |
 
-LVGL touch drives also needs to know about the values/data provided by XPT2046 pin when the surface of LCD is touched at min/max X coordinate (lower left and upper right corner) and min/max Y coordinate (lower right ad upper left corner).
+LVGL touch drivers also needs to know about the values/data provided by XPT2046 pin when the surface of LCD is touched at min/max X coordinate (lower left and upper right corner) and min/max Y coordinate (lower right ad upper left corner).
 For this go to `Component Config->LVGL Touch controller->Touchpanel Configuration` 
 
 |           Menuconfig          | values |
@@ -60,16 +61,16 @@ For this go to `Component Config->LVGL Touch controller->Touchpanel Configuratio
 |  Maximum X coordinate value   |  1959  |
 |  Maximum Y coordinate value   |  1843  |
 
-The below values should be constant as X/Y values require inversion (y means marked in menuconfig GUI)
+X/Y values require inversion for landscape mode (y means marked in menuconfig GUI)
 
 | Menuconfig Variable Name   | values |
 |----------------------------|--------|
 | Invert X coordinate value  |   y    |
 | Invert X coordinate value  |   y    |
 
-LCD resolution 320x240 can be configured in `Component Config->LVGL configuration` 
+* LCD resolution 320x240 can be configured in `Component Config->LVGL configuration` 
 
-To configure XPT2046 as a touch controller, select `Component Config->LVGL Touch controller->Select Touchpanel controller model` and select `XPT2056` from options. 
+* To configure XPT2046 as a touch controller, select `Component Config->LVGL Touch controller->Select Touchpanel controller model` and select `XPT2056` from options. 
 
 
 ## Clock Tab Image
